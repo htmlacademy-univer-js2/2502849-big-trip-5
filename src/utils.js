@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 const FORMAT_TIME = 'HH:mm';
 const FORMAT_DAY = 'MMM D';
-
+const FORMAT_DATETIME = 'DD/MM/YY HH:mm';
 
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -11,6 +11,8 @@ function getRandomArrayElement(items) {
 const formatTime = (time) => dayjs(time).format(FORMAT_TIME);
 
 const formatEventDate = (date) => dayjs(date).format(FORMAT_DAY);
+
+const formatDateTime = (date) => dayjs(date).format(FORMAT_DATETIME);
 
 const calculateDuration = (startDate, endDate) => {
   const start = dayjs(startDate);
@@ -32,5 +34,6 @@ const calculateDuration = (startDate, endDate) => {
 
 const formatTimeRange = (startDate, endDate) => `${formatTime(startDate)} — ${formatTime(endDate)}`;
 
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange};
+export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey};
