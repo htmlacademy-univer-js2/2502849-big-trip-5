@@ -3,6 +3,4 @@ import PointsModel from './model/model';
 
 
 const pointsModel = new PointsModel();
-const presenter = new Presenter({pointsModel});
-
-presenter.init();
+new Presenter({pointsModel}).init();

@@ -1,8 +1,8 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {formatTimeRange, calculateDuration, formatEventDate} from '../utils.js';
 
 
-function createEventItemTemplate({point, destination, offers}) {
+function createEventTemplate({point, destination, offers}) {
   return `<li class="trip-events__item">
              <div class="event">
                <time class="event__date" datetime="${point.date_from}">${formatEventDate(point.date_from)}</time>
@@ -44,29 +44,28 @@ function createEventItemTemplate({point, destination, offers}) {
            </li>`;
 }
 
-export default class EventItemView {
-  constructor({point, destination, offers}) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
-  }
+export default class EventView extends AbstractView{
+  #point = null;
+  #destination = null;
+  #offers = null;
 
-  getTemplate() {
-    return createEventItemTemplate({
-      point: this.point,
-      destination: this.destination,
-      offers: this.offers,
+  constructor({point, destination, offers, onRollupButtonClick}) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', (event) => {
+      event.preventDefault();
+      onRollupButtonClick();
     });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEventTemplate({
+      point: this.#point,
+      destination: this.#destination,
+      offers: this.#offers,
+    });
   }
 }
