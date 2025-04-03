@@ -10,31 +10,31 @@ export default class PointsModel {
   #offers = mockOffers;
 
   get points() {
-    return this.#points;
+    return [...this.#points];
   }
 
   get destinations() {
-    return this.#destinations;
+    return [...this.#destinations];
   }
 
   get offers() {
-    return this.#offers;
+    return [...this.#offers];
   }
 
   getDestinationById(destinationId) {
-    return this.#destinations.find((destination) => destination.id === destinationId);
+    return this.#destinations.find(({id}) => id === destinationId);
   }
 
   getOffersByType(type) {
-    const offerGroup = this.#offers.find((offer) => offer.type === type);
-    return offerGroup ? offerGroup.offers : [];
+    const {offers} = this.#offers.find((offer) => offer.type === type) || {};
+    return offers ? [...offers] : [];
   }
 
   getOfferById(offerId) {
-    for (const offerGroup of this.#offers) {
-      const foundOffer = offerGroup.offers.find((offer) => offer.id === offerId);
+    for (const {offers} of this.#offers) {
+      const foundOffer = offers.find(({id}) => id === offerId);
       if (foundOffer) {
-        return foundOffer;
+        return {...foundOffer};
       }
     }
     return null;
