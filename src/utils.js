@@ -36,4 +36,17 @@ const formatTimeRange = (startDate, endDate) => `${formatTime(startDate)} — ${
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey};
+
+function isFuturedPoint(point) {
+  return dayjs().isBefore(point.dateFrom);
+}
+
+function isPresentedPoint(point) {
+  return dayjs().isAfter(point.dateFrom) && dayjs().isBefore(point.dateTo);
+}
+
+function isPastedPoint(point) {
+  return dayjs().isAfter(point.dateTo);
+}
+
+export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint};

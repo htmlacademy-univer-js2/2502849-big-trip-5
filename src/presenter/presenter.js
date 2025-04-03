@@ -1,16 +1,19 @@
 import {isEscapeKey} from '../utils.js';
 import {render, replace} from '../framework/render.js';
-import FiltersView from '../view/filters-view';
-import FormEditingView from '../view/form-editing-view';
-import EventListView from '../view/event-list-view';
+import FiltersView from '../view/filters-view.js';
+import FormEditingView from '../view/form-editing-view.js';
+import EventListView from '../view/event-list-view.js';
 import EventView from '../view/event-view.js';
-import SortingView from '../view/sorting-view';
+import SortingView from '../view/sorting-view.js';
+import EmptyListView from '../view/empty-list-view.js';
+import {generateFilters} from '../mock/filters.js';
 
 export default class Presenter {
   #eventList = new EventListView();
   #pointsModel = null;
   #eventsContainer = null;
   #filtersContainer = null;
+  #emptyListComponent = new EmptyListView();
 
   constructor({pointsModel}) {
     this.#pointsModel = pointsModel;
@@ -21,13 +24,28 @@ export default class Presenter {
   init() {
     const points = this.#pointsModel.points;
 
-    render(new FiltersView(), this.#filtersContainer);
+    if (points.length === 0) {
+      this.#renderEmptyList();
+    } else {
+      this.#renderPointsList();
+    }
+  }
+
+  #renderPointsList() {
+    const points = this.#pointsModel.points;
+    const filters = generateFilters(points);
+
+    render(new FiltersView({filters}), this.#filtersContainer);
     render(new SortingView(), this.#eventsContainer);
     render(this.#eventList, this.#eventsContainer);
 
     points.forEach((point) => {
       this.#renderPoint(point);
     });
+  }
+
+  #renderEmptyList() {
+    render(this.#emptyListComponent, this.#eventsContainer);
   }
 
   #renderPoint(point) {
