@@ -1,6 +1,6 @@
+/* eslint-disable camelcase */
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatTimeRange, calculateDuration, formatEventDate} from '../utils.js';
-
 
 function createEventTemplate({point, destination, offers}) {
   return `<li class="trip-events__item">
@@ -44,20 +44,28 @@ function createEventTemplate({point, destination, offers}) {
            </li>`;
 }
 
-export default class EventView extends AbstractView{
+export default class EventView extends AbstractView {
   #point = null;
   #destination = null;
   #offers = null;
 
-  constructor({point, destination, offers, onRollupButtonClick}) {
+  constructor({point, destination, offers, onRollupButtonClick, onFavoriteClick}) {
     super();
     this.#point = point;
     this.#destination = destination;
     this.#offers = offers;
 
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', (event) => {
-      event.preventDefault();
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', (evt) => {
+      evt.preventDefault();
       onRollupButtonClick();
+    });
+
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      onFavoriteClick({
+        ...this.#point,
+        is_favorite: !this.#point.is_favorite
+      });
     });
   }
 
