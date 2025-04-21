@@ -39,4 +39,17 @@ export default class PointsModel {
     }
     return null;
   }
+
+  updatePoint(updatedPoint) {
+    const index = this.#points.findIndex((point) => point.id === updatedPoint.id);
+    if (index === -1) {
+      return;
+    }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      {...this.#points[index], ...updatedPoint},
+      ...this.#points.slice(index + 1)
+    ];
+  }
 }
