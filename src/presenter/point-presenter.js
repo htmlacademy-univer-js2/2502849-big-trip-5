@@ -8,6 +8,7 @@ const Mode = {
   EDITING: 'EDITING'
 };
 
+
 export default class PointPresenter {
   #eventList = null;
   #point = null;

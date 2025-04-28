@@ -36,7 +36,6 @@ const formatTimeRange = (startDate, endDate) => `${formatTime(startDate)} — ${
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-
 function isFuturedPoint(point) {
   return dayjs().isBefore(point.dateFrom);
 }
@@ -49,4 +48,15 @@ function isPastedPoint(point) {
   return dayjs().isAfter(point.dateTo);
 }
 
-export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint};
+// Новые функции сортировки
+const sortPointsByDay = (pointA, pointB) => dayjs(pointA.date_from).diff(dayjs(pointB.date_from));
+
+const sortPointsByTime = (pointA, pointB) => {
+  const durationA = dayjs(pointA.date_to).diff(dayjs(pointA.date_from));
+  const durationB = dayjs(pointB.date_to).diff(dayjs(pointB.date_from));
+  return durationB - durationA;
+};
+
+const sortPointsByPrice = (pointA, pointB) => pointB.base_price - pointA.base_price;
+
+export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint, sortPointsByDay, sortPointsByTime, sortPointsByPrice};
