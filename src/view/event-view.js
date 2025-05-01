@@ -64,6 +64,7 @@ export default class EventView extends AbstractView {
       evt.preventDefault();
       onFavoriteClick({
         ...this.#point,
+        // eslint-disable-next-line camelcase
         is_favorite: !this.#point.is_favorite
       });
     });
