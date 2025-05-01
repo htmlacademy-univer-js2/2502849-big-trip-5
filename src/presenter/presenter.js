@@ -66,7 +66,12 @@ export default class Presenter {
 
   #renderPoints() {
     const points = this.#sortPoints(this.#pointsModel.points);
-    points.forEach((point) => this.#renderPoint(point));
+
+    points.forEach((point) => {
+      if (!this.#pointPresenters.has(point.id)) {
+        this.#renderPoint(point);
+      }
+    });
   }
 
   #renderPoint(point) {
