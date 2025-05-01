@@ -17,7 +17,6 @@ export default class PointPresenter {
   #pointsModel = null;
   #onDataChange = null;
   #onModeChange = null;
-
   #routePoint = null;
   #editingForm = null;
   #mode = Mode.DEFAULT;
@@ -48,7 +47,9 @@ export default class PointPresenter {
     this.#editingForm = new FormEditingView({
       point: this.#point,
       destination: this.#destination,
-      offers: this.#offers,
+      offers: this.#pointsModel.getOffersByType(this.#point.type),
+      allDestinations: this.#pointsModel.destinations,
+      allOffers: this.#pointsModel.offers,
       onFormSubmit: this.#onFormSubmit,
       onRollupButtonClick: this.#onRollupButtonClick
     });
@@ -103,7 +104,12 @@ export default class PointPresenter {
   };
 
   #onRollupButtonClick = () => {
-    this.#switchToEditingForm();
+    if (this.#mode === Mode.DEFAULT) {
+      this.#switchToEditingForm();
+    } else {
+      this.#switchToRoutePoint();
+      this.#onModeChange(null);
+    }
   };
 
   #onFavoriteClick = (updatedPoint) => {

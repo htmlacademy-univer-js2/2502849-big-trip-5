@@ -48,9 +48,16 @@ function isPastedPoint(point) {
   return dayjs().isAfter(point.dateTo);
 }
 
-// Новые функции сортировки
-const sortPointsByDay = (pointA, pointB) => dayjs(pointA.date_from).diff(dayjs(pointB.date_from));
+const sortPointsByDay = (pointA, pointB) => {
+  const dateA = dayjs(pointA.date_from);
+  const dateB = dayjs(pointB.date_from);
 
+  if (dateA.isSame(dateB)) {
+    return dayjs(pointA.date_to).diff(dayjs(pointB.date_to));
+  }
+
+  return dateA.diff(dateB);
+};
 const sortPointsByTime = (pointA, pointB) => {
   const durationA = dayjs(pointA.date_to).diff(dayjs(pointA.date_from));
   const durationB = dayjs(pointB.date_to).diff(dayjs(pointB.date_from));

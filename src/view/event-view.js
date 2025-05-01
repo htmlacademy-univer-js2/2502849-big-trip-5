@@ -1,6 +1,6 @@
-/* eslint-disable camelcase */
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatTimeRange, calculateDuration, formatEventDate} from '../utils.js';
+
 
 function createEventTemplate({point, destination, offers}) {
   return `<li class="trip-events__item">
@@ -64,6 +64,7 @@ export default class EventView extends AbstractView {
       evt.preventDefault();
       onFavoriteClick({
         ...this.#point,
+        // eslint-disable-next-line camelcase
         is_favorite: !this.#point.is_favorite
       });
     });
