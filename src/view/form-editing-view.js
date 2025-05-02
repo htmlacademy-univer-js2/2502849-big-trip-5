@@ -1,5 +1,10 @@
+/* eslint-disable camelcase */
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {formatDateTime} from '../utils.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
+const DATE_FORMAT = 'd/m/y H:i';
 
 
 function createFormEditingTemplate({ point, destination, offers, allDestinations }) {
@@ -7,10 +12,9 @@ function createFormEditingTemplate({ point, destination, offers, allDestinations
   const hasOffers = offers.length > 0;
   const hasDestinationInfo = destination && (destination.description || destination.pictures?.length > 0);
 
-  return `
-    <form class="event event--edit" action="#" method="post">
-      <header class="event__header">
-        <div class="event__type-wrapper">
+  return `<form class="event event--edit" action="#" method="post">
+          <header class="event__header">
+          <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
@@ -165,6 +169,8 @@ export default class FormEditingView extends AbstractStatefulView {
   #allOffers = [];
   #onFormSubmit = null;
   #onRollupClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor({point, destination, offers, allDestinations, allOffers, onFormSubmit, onRollupButtonClick}) {
     super();
@@ -192,12 +198,50 @@ export default class FormEditingView extends AbstractStatefulView {
     });
   }
 
+  removeElement() {
+    super.removeElement();
+    this.#datepickerFrom?.destroy();
+    this.#datepickerTo?.destroy();
+  }
+
   _restoreHandlers() {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#onTypeChange);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#onDestinationChange);
     this.element.querySelector('.event__save-btn').addEventListener('click', this.#onFormSubmitClick);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onRollupButtonClick);
     this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#onOfferToggle);
+
+    this.#setFlatpickr();
+  }
+
+  #setFlatpickr() {
+    const commonOptions = {
+      dateFormat: DATE_FORMAT,
+      enableTime: true,
+      time_24hr: true,
+      locale: {firstDayOfWeek: 1}
+    };
+
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        ...commonOptions,
+        defaultDate: this._state.point.date_from,
+        onClose: (selectedDates) => {
+          this.#datepickerTo.set('minDate', selectedDates[0]);
+          this._state.point.date_from = selectedDates[0].toISOString();
+        }
+      }
+    );
+
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        ...commonOptions,
+        defaultDate: this._state.point.date_to,
+        minDate: this._state.point.date_from
+      }
+    );
   }
 
   #onTypeChange = (evt) => {
@@ -270,5 +314,3 @@ export default class FormEditingView extends AbstractStatefulView {
     this.#onRollupClick();
   };
 }
-
-
