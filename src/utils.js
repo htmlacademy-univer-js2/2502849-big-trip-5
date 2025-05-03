@@ -37,15 +37,15 @@ const formatTimeRange = (startDate, endDate) => `${formatTime(startDate)} — ${
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
 function isFuturedPoint(point) {
-  return dayjs().isBefore(point.dateFrom);
+  return dayjs().isBefore(point.date_from);
 }
 
 function isPresentedPoint(point) {
-  return dayjs().isAfter(point.dateFrom) && dayjs().isBefore(point.dateTo);
+  return dayjs().isAfter(point.date_from) && dayjs().isBefore(point.date_to);
 }
 
 function isPastedPoint(point) {
-  return dayjs().isAfter(point.dateTo);
+  return dayjs().isAfter(point.date_to);
 }
 
 const sortPointsByDay = (pointA, pointB) => {

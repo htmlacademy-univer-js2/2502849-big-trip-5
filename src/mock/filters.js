@@ -23,4 +23,4 @@ function generateFilters(points) {
   );
 }
 
-export {generateFilters};
+export {FilterType, generateFilters};
