@@ -1,6 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-
 function createFormCreationTemplate() {
   return `<form class="event event--edit" action="#" method="post">
             <header class="event__header">

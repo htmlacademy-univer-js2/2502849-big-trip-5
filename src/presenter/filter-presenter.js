@@ -19,8 +19,14 @@ export default class FilterPresenter {
     this.#renderFilters();
   }
 
+  #onModelEvent = () => {
+    this.#renderFilters();
+  };
+
   #renderFilters() {
-    const filters = generateFilters(this.#pointsModel.points);
+    const points = this.#pointsModel.allPoints;
+    const filters = generateFilters(points);
+
     const prevFiltersComponent = this.#filtersComponent;
 
     this.#filtersComponent = new FiltersView({
@@ -37,10 +43,6 @@ export default class FilterPresenter {
     replace(this.#filtersComponent, prevFiltersComponent);
     remove(prevFiltersComponent);
   }
-
-  #onModelEvent = () => {
-    this.#renderFilters();
-  };
 
   #onFilterTypeChange = (filterType) => {
     if (this.#filterModel.filter === filterType) {

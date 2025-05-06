@@ -1,10 +1,8 @@
 import {getRandomPoint} from '../mock/point.js';
 import {mockDestinations} from '../mock/destinations.js';
 import {mockOffers} from '../mock/offers.js';
-import {FilterType} from '../mock/filters.js';
+import {POINT_COUNT, FilterType} from '../const.js';
 import {isFuturedPoint, isPresentedPoint, isPastedPoint} from '../utils.js';
-
-const POINT_COUNT = 4;
 
 export default class PointsModel {
   #points = Array.from({length: POINT_COUNT}, getRandomPoint);
@@ -31,6 +29,10 @@ export default class PointsModel {
       default:
         return [...this.#points];
     }
+  }
+
+  get allPoints() {
+    return [...this.#points];
   }
 
   set points(points) {
@@ -86,4 +88,14 @@ export default class PointsModel {
 
     this.#notifyObservers();
   }
+
+  deletePoint(pointId) {
+    const initialLength = this.#points.length;
+    this.#points = this.#points.filter((point) => point.id !== pointId);
+
+    if (this.#points.length !== initialLength) {
+      this.#notifyObservers();
+    }
+  }
 }
+

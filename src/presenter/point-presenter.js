@@ -2,12 +2,7 @@ import {isEscapeKey} from '../utils.js';
 import {render, replace, remove} from '../framework/render.js';
 import FormEditingView from '../view/form-editing-view.js';
 import EventView from '../view/event-view.js';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING'
-};
-
+import {Mode, UserAction} from '../const.js';
 
 export default class PointPresenter {
   #eventList = null;
@@ -51,7 +46,8 @@ export default class PointPresenter {
       allDestinations: this.#pointsModel.destinations,
       allOffers: this.#pointsModel.offers,
       onFormSubmit: this.#onFormSubmit,
-      onRollupButtonClick: this.#onRollupButtonClick
+      onRollupButtonClick: this.#onRollupButtonClick,
+      onDeleteClick: this.#onDeleteClick
     });
 
     if (prevRoutePoint === null || prevEditingForm === null) {
@@ -112,12 +108,24 @@ export default class PointPresenter {
     }
   };
 
-  #onFavoriteClick = (updatedPoint) => {
-    this.#onDataChange(updatedPoint);
+  #onDeleteClick = (point) => {
+    this.#onDataChange(
+      UserAction.DELETE_POINT,
+      {id: point.id}
+    );
   };
 
-  #onFormSubmit = () => {
-    this.#switchToRoutePoint();
-    this.#onModeChange(null);
+  #onFavoriteClick = (updatedPoint) => {
+    this.#onDataChange(
+      UserAction.UPDATE_POINT,
+      updatedPoint
+    );
+  };
+
+  #onFormSubmit = (updatedPoint) => {
+    this.#onDataChange(
+      UserAction.UPDATE_POINT,
+      updatedPoint
+    );
   };
 }

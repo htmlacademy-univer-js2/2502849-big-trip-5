@@ -1,6 +1,5 @@
 import {getRandomArrayElement} from '../utils.js';
 
-
 const mockPoints = [
   {
     'id': '4be4f79e-58a3-48a9-9be6-6b26b120b1b9',

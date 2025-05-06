@@ -4,12 +4,7 @@ import EventListView from '../view/event-list-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import PointPresenter from './point-presenter.js';
-
-const SortType = {
-  DAY: 'day',
-  TIME: 'time',
-  PRICE: 'price',
-};
+import {SortType, UserAction} from '../const.js';
 
 export default class Presenter {
   #eventList = new EventListView();
@@ -29,6 +24,7 @@ export default class Presenter {
     this.#eventsContainer = document.querySelector('.trip-events');
     this.#filtersContainer = document.querySelector('.trip-controls__filters');
 
+    this.#pointsModel.addObserver(this.#onModelEvent);
     this.#filterModel.addObserver(this.#onModelEvent);
   }
 
@@ -95,9 +91,10 @@ export default class Presenter {
   }
 
   #renderPoints() {
-    const points = this.#sortPoints(this.#pointsModel.points);
+    const points = this.#pointsModel.points;
+    const sortedPoints = this.#sortPoints(points);
 
-    points.forEach((point) => {
+    sortedPoints.forEach((point) => {
       if (!this.#pointPresenters.has(point.id)) {
         this.#renderPoint(point);
       }
@@ -138,9 +135,18 @@ export default class Presenter {
     }
   }
 
-  #onPointChange = (updatedPoint) => {
-    this.#pointsModel.updatePoint(updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id)?.init(updatedPoint);
+  #onPointChange = (actionType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(update);
+        this.#pointPresenters.get(update.id)?.init(update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointPresenters.get(update.id)?.destroy();
+        this.#pointPresenters.delete(update.id);
+        this.#pointsModel.deletePoint(update.id);
+        break;
+    }
   };
 
   #onModeChange = (pointId) => {

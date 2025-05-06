@@ -1,11 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-
-const EmptyListText = {
-  EVERYTHING: 'Click New Event to create your first point',
-  PAST: 'There are no past events now',
-  PRESENT: 'There are no present events now',
-  FUTURE: 'There are no future events now'
-};
+import {EmptyListText} from '../const.js';
 
 function createEmptyListTemplate(filterType) {
   return `<p class="trip-events__msg">${EmptyListText[filterType]}</p>`;

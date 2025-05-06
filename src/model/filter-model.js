@@ -1,4 +1,4 @@
-import {FilterType} from '../mock/filters';
+import {FilterType} from '../const';
 
 export default class FilterModel {
   #filter = FilterType.EVERYTHING;

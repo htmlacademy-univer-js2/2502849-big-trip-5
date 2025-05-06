@@ -1,13 +1,11 @@
 /* eslint-disable camelcase */
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {formatDateTime} from '../utils.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import {formatDateTime} from '../utils.js';
+import {DATE_FORMAT} from '../const.js';
 
-const DATE_FORMAT = 'd/m/y H:i';
-
-
-function createFormEditingTemplate({ point, destination, offers, allDestinations }) {
+function createFormEditingTemplate({point, destination, offers, allDestinations}) {
   const destinationNames = allDestinations.map((dest) => dest.name);
   const hasOffers = offers.length > 0;
   const hasDestinationInfo = destination && (destination.description || destination.pictures?.length > 0);
@@ -109,7 +107,7 @@ function createFormEditingTemplate({ point, destination, offers, allDestinations
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="button">Delete</button>
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Close event</span>
         </button>
@@ -159,8 +157,7 @@ function createFormEditingTemplate({ point, destination, offers, allDestinations
           ` : ''}
         </section>
       ` : ''}
-    </form>
-  `;
+    </form>`;
 }
 
 export default class FormEditingView extends AbstractStatefulView {
@@ -171,14 +168,16 @@ export default class FormEditingView extends AbstractStatefulView {
   #onRollupClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #onDeleteClick = null;
 
-  constructor({point, destination, offers, allDestinations, allOffers, onFormSubmit, onRollupButtonClick}) {
+  constructor({point, destination, offers, allDestinations, allOffers, onFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this.#point = point;
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupButtonClick;
+    this.#onDeleteClick = onDeleteClick;
 
     this._setState({
       point: { ...this.#point },
@@ -210,6 +209,7 @@ export default class FormEditingView extends AbstractStatefulView {
     this.element.querySelector('.event__save-btn').addEventListener('click', this.#onFormSubmitClick);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onRollupButtonClick);
     this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#onOfferToggle);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteButtonClick);
 
     this.#setFlatpickr();
   }
@@ -313,4 +313,10 @@ export default class FormEditingView extends AbstractStatefulView {
     });
     this.#onRollupClick();
   };
+
+  #onDeleteButtonClick = (evt) => {
+    evt.preventDefault();
+    this.#onDeleteClick(this._state.point);
+  };
 }
+
