@@ -1,10 +1,11 @@
+/* eslint-disable camelcase */
 import {render, remove} from '../framework/render.js';
 import {sortPointsByDay, sortPointsByTime, sortPointsByPrice} from '../utils.js';
 import EventListView from '../view/event-list-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import PointPresenter from './point-presenter.js';
-import {SortType, UserAction} from '../const.js';
+import {SortType, UserAction, FilterType} from '../const.js';
 
 export default class Presenter {
   #eventList = new EventListView();
@@ -137,16 +138,50 @@ export default class Presenter {
 
   #onPointChange = (actionType, update) => {
     switch (actionType) {
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(update);
+        break;
       case UserAction.UPDATE_POINT:
         this.#pointsModel.updatePoint(update);
-        this.#pointPresenters.get(update.id)?.init(update);
         break;
       case UserAction.DELETE_POINT:
-        this.#pointPresenters.get(update.id)?.destroy();
-        this.#pointPresenters.delete(update.id);
         this.#pointsModel.deletePoint(update.id);
         break;
     }
+  };
+
+  onNewPointButtonClick = () => {
+    if (this.#filterModel.filter !== FilterType.EVERYTHING) {
+      this.#filterModel.setFilter(FilterType.EVERYTHING);
+    }
+
+    this.#currentSortType = SortType.DAY;
+    this.#sortComponent?.update(SortType.DAY);
+
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    this.#pointPresenters.clear();
+
+    const newPoint = {
+      id: crypto.randomUUID(),
+      base_price: 0,
+      date_from: '',
+      date_to: '',
+      destination: null,
+      is_favorite: false,
+      offers: [],
+      type: 'flight'
+    };
+
+    const pointPresenter = new PointPresenter({
+      eventList: this.#eventList,
+      pointsModel: this.#pointsModel,
+      onDataChange: this.#onPointChange,
+      onModeChange: this.#onModeChange
+    });
+
+    pointPresenter.init(newPoint, true);
+    this.#pointPresenters.set(newPoint.id, pointPresenter);
+    this.#currentEditingPointId = newPoint.id;
   };
 
   #onModeChange = (pointId) => {
@@ -155,7 +190,10 @@ export default class Presenter {
     }
 
     if (this.#currentEditingPointId) {
-      this.#pointPresenters.get(this.#currentEditingPointId)?.resetView();
+      const presenter = this.#pointPresenters.get(this.#currentEditingPointId);
+      if (presenter) {
+        presenter.resetView();
+      }
     }
 
     this.#currentEditingPointId = pointId;
@@ -171,3 +209,4 @@ export default class Presenter {
     this.#renderPoints();
   };
 }
+

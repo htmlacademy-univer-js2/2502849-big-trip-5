@@ -63,4 +63,9 @@ const sortPointsByTime = (pointA, pointB) => {
 
 const sortPointsByPrice = (pointA, pointB) => pointB.base_price - pointA.base_price;
 
-export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint, sortPointsByDay, sortPointsByTime, sortPointsByPrice};
+const getValidDate = (dateString) =>
+  dateString && dayjs(dateString).isValid() ? dayjs(dateString).toDate() : null;
+
+const formatToISO = (date) => dayjs(date).toISOString();
+
+export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint, sortPointsByDay, sortPointsByTime, sortPointsByPrice, getValidDate, formatToISO};

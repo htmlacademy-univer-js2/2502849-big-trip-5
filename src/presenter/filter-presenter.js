@@ -12,16 +12,18 @@ export default class FilterPresenter {
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
-    this.#pointsModel.addObserver(this.#onModelEvent);
-  }
 
-  init() {
-    this.#renderFilters();
+    this.#filterModel.addObserver(this.#onModelEvent);
+    this.#pointsModel.addObserver(this.#onModelEvent);
   }
 
   #onModelEvent = () => {
     this.#renderFilters();
   };
+
+  init() {
+    this.#renderFilters();
+  }
 
   #renderFilters() {
     const points = this.#pointsModel.allPoints;

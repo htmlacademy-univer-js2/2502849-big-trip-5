@@ -97,5 +97,10 @@ export default class PointsModel {
       this.#notifyObservers();
     }
   }
+
+  addPoint(newPoint) {
+    this.#points = [newPoint, ...this.#points];
+    this.#notifyObservers();
+  }
 }
 

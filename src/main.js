@@ -6,5 +6,16 @@ import FilterModel from './model/filter-model.js';
 const filterModel = new FilterModel();
 const pointsModel = new PointsModel({filterModel});
 
-new Presenter({pointsModel, filterModel}).init();
-new FilterPresenter({filtersContainer: document.querySelector('.trip-controls__filters'), pointsModel, filterModel}).init();
+const presenter = new Presenter({pointsModel, filterModel});
+presenter.init();
+
+new FilterPresenter({
+  filtersContainer: document.querySelector('.trip-controls__filters'),
+  pointsModel,
+  filterModel
+}).init();
+
+document.querySelector('.trip-main__event-add-btn').addEventListener('click', () => {
+  document.querySelector('.trip-main__event-add-btn').disabled = true;
+  presenter.onNewPointButtonClick();
+});

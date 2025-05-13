@@ -35,3 +35,12 @@ export const DATE_FORMAT = 'd/m/y H:i';
 export const FORMAT_TIME = 'HH:mm';
 export const FORMAT_DAY = 'MMM D';
 export const FORMAT_DATETIME = 'DD/MM/YY HH:mm';
+
+export const FLATPICKR_COMMON_OPTIONS = {
+  dateFormat: DATE_FORMAT,
+  enableTime: true,
+  // eslint-disable-next-line camelcase
+  time_24hr: true,
+  locale: {firstDayOfWeek: 1},
+  allowInput: true
+};
