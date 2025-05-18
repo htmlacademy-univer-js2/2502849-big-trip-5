@@ -147,7 +147,7 @@ export default class PointPresenter {
   #onDeleteClick = (point) => {
     this.#onDataChange(
       UserAction.DELETE_POINT,
-      { id: point.id }
+      {id: point.id}
     );
   };
 

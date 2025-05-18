@@ -173,7 +173,7 @@ export default class FormEditingView extends AbstractStatefulView {
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
     this.#onFormSubmit = onFormSubmit;
-    this.#onRollupClick = isCreating ? () => onRollupButtonClick() : onRollupButtonClick; // Для существующей - обычное поведение
+    this.#onRollupClick = isCreating ? () => onRollupButtonClick() : onRollupButtonClick;
     this.#onDeleteClick = isCreating ? () => {} : onDeleteClick;
     this.#isCreating = isCreating;
 
@@ -216,7 +216,7 @@ export default class FormEditingView extends AbstractStatefulView {
   }
 
   #setFlatpickr() {
-    const handleDateFromChange = (dates) => {
+    const onDateFromChange = (dates) => {
       if (dates[0]) {
         this._setState({
           point: {
@@ -244,7 +244,7 @@ export default class FormEditingView extends AbstractStatefulView {
       {
         ...FLATPICKR_COMMON_OPTIONS,
         defaultDate: getValidDate(this._state.point.date_from),
-        onClose: handleDateFromChange
+        onClose: onDateFromChange
       }
     );
 
