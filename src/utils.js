@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
-
-const FORMAT_TIME = 'HH:mm';
-const FORMAT_DAY = 'MMM D';
-const FORMAT_DATETIME = 'DD/MM/YY HH:mm';
+import {FORMAT_TIME, FORMAT_DAY, FORMAT_DATETIME} from './const';
 
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -37,15 +34,15 @@ const formatTimeRange = (startDate, endDate) => `${formatTime(startDate)} — ${
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
 function isFuturedPoint(point) {
-  return dayjs().isBefore(point.dateFrom);
+  return dayjs().isBefore(point.date_from);
 }
 
 function isPresentedPoint(point) {
-  return dayjs().isAfter(point.dateFrom) && dayjs().isBefore(point.dateTo);
+  return dayjs().isAfter(point.date_from) && dayjs().isBefore(point.date_to);
 }
 
 function isPastedPoint(point) {
-  return dayjs().isAfter(point.dateTo);
+  return dayjs().isAfter(point.date_to);
 }
 
 const sortPointsByDay = (pointA, pointB) => {
@@ -66,4 +63,9 @@ const sortPointsByTime = (pointA, pointB) => {
 
 const sortPointsByPrice = (pointA, pointB) => pointB.base_price - pointA.base_price;
 
-export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint, sortPointsByDay, sortPointsByTime, sortPointsByPrice};
+const getValidDate = (dateString) =>
+  dateString && dayjs(dateString).isValid() ? dayjs(dateString).toDate() : null;
+
+const formatToISO = (date) => dayjs(date).toISOString();
+
+export {getRandomArrayElement, formatEventDate, calculateDuration, formatTimeRange, formatDateTime, isEscapeKey, isFuturedPoint, isPresentedPoint, isPastedPoint, sortPointsByDay, sortPointsByTime, sortPointsByPrice, getValidDate, formatToISO};

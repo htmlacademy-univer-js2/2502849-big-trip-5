@@ -1,6 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-
 function createSortingTemplate(currentSortType) {
   return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
             <div class="trip-sort__item  trip-sort__item--day">
@@ -39,14 +38,14 @@ export default class SortingView extends AbstractView {
     this.#currentSortType = currentSortType;
     this.#onSortTypeChange = onSortTypeChange;
 
-    this.element.addEventListener('click', this.#onSortTypeChangeClick);
+    this.element.addEventListener('click', this.#onSortTypeInputChange);
   }
 
   get template() {
     return createSortingTemplate(this.#currentSortType);
   }
 
-  #onSortTypeChangeClick = (evt) => {
+  #onSortTypeInputChange = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
       return;
     }
@@ -56,7 +55,6 @@ export default class SortingView extends AbstractView {
   };
 
   update(currentSortType) {
-    this.#currentSortType = currentSortType;
     const inputs = this.element.querySelectorAll('.trip-sort__input');
     inputs.forEach((input) => {
       input.checked = input.dataset.sortType === currentSortType;

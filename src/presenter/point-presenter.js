@@ -2,12 +2,7 @@ import {isEscapeKey} from '../utils.js';
 import {render, replace, remove} from '../framework/render.js';
 import FormEditingView from '../view/form-editing-view.js';
 import EventView from '../view/event-view.js';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING'
-};
-
+import {Mode, UserAction} from '../const.js';
 
 export default class PointPresenter {
   #eventList = null;
@@ -20,6 +15,7 @@ export default class PointPresenter {
   #routePoint = null;
   #editingForm = null;
   #mode = Mode.DEFAULT;
+  #isCreating = false;
 
   constructor({eventList, pointsModel, onDataChange, onModeChange}) {
     this.#eventList = eventList;
@@ -28,10 +24,11 @@ export default class PointPresenter {
     this.#onModeChange = onModeChange;
   }
 
-  init(point) {
+  init(point, isCreating = false) {
     this.#point = point;
-    this.#destination = this.#pointsModel.getDestinationById(point.destination);
-    this.#offers = point.offers.map((offerId) => this.#pointsModel.getOfferById(offerId));
+    this.#isCreating = isCreating;
+    this.#destination = isCreating ? null : this.#pointsModel.getDestinationById(point.destination);
+    this.#offers = isCreating ? [] : point.offers.map((offerId) => this.#pointsModel.getOfferById(offerId));
 
     const prevRoutePoint = this.#routePoint;
     const prevEditingForm = this.#editingForm;
@@ -51,8 +48,16 @@ export default class PointPresenter {
       allDestinations: this.#pointsModel.destinations,
       allOffers: this.#pointsModel.offers,
       onFormSubmit: this.#onFormSubmit,
-      onRollupButtonClick: this.#onRollupButtonClick
+      onRollupButtonClick: this.#onRollupButtonClick,
+      onDeleteClick: this.#isCreating ? this.#onCancel : this.#onDeleteClick,
+      isCreating: this.#isCreating
     });
+
+    if (isCreating) {
+      render(this.#editingForm, this.#eventList.element, 'afterbegin');
+      this.#switchToEditingForm();
+      return;
+    }
 
     if (prevRoutePoint === null || prevEditingForm === null) {
       render(this.#routePoint, this.#eventList.element);
@@ -74,6 +79,7 @@ export default class PointPresenter {
   destroy() {
     remove(this.#routePoint);
     remove(this.#editingForm);
+    document.removeEventListener('keydown', this.#onDocumentKeydown);
   }
 
   resetView() {
@@ -84,24 +90,27 @@ export default class PointPresenter {
 
   #switchToEditingForm() {
     this.#onModeChange(this.#point.id);
-    replace(this.#editingForm, this.#routePoint);
+    if (this.#isCreating) {
+      render(this.#editingForm, this.#eventList.element, 'afterbegin');
+    } else {
+      replace(this.#editingForm, this.#routePoint);
+    }
     document.addEventListener('keydown', this.#onDocumentKeydown);
     this.#mode = Mode.EDITING;
   }
 
   #switchToRoutePoint() {
-    replace(this.#routePoint, this.#editingForm);
-    document.removeEventListener('keydown', this.#onDocumentKeydown);
-    this.#mode = Mode.DEFAULT;
-  }
-
-  #onDocumentKeydown = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.#switchToRoutePoint();
-      this.#onModeChange(null);
+    if (this.#mode === Mode.EDITING) {
+      if (this.#isCreating) {
+        remove(this.#editingForm);
+        this.#unlockNewEventButton();
+      } else {
+        replace(this.#routePoint, this.#editingForm);
+      }
+      document.removeEventListener('keydown', this.#onDocumentKeydown);
+      this.#mode = Mode.DEFAULT;
     }
-  };
+  }
 
   #onRollupButtonClick = () => {
     if (this.#mode === Mode.DEFAULT) {
@@ -109,15 +118,62 @@ export default class PointPresenter {
     } else {
       this.#switchToRoutePoint();
       this.#onModeChange(null);
+      if (this.#isCreating) {
+        this.#unlockNewEventButton();
+      }
     }
   };
 
-  #onFavoriteClick = (updatedPoint) => {
-    this.#onDataChange(updatedPoint);
+  #unlockNewEventButton = () => {
+    const newEventButton = document.querySelector('.trip-main__event-add-btn');
+    if (newEventButton) {
+      newEventButton.disabled = false;
+    }
   };
 
-  #onFormSubmit = () => {
-    this.#switchToRoutePoint();
+  #onDocumentKeydown = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+
+      if (this.#isCreating) {
+        this.#unlockNewEventButton();
+      }
+
+      this.#switchToRoutePoint();
+      this.#onModeChange(null);
+    }
+  };
+
+  #onDeleteClick = (point) => {
+    this.#onDataChange(
+      UserAction.DELETE_POINT,
+      {id: point.id}
+    );
+  };
+
+  #onCancel = () => {
+    this.destroy();
     this.#onModeChange(null);
+    this.#unlockNewEventButton();
+  };
+
+  #onFormSubmit = (updatedPoint) => {
+    this.#onDataChange(
+      this.#isCreating ? UserAction.ADD_POINT : UserAction.UPDATE_POINT,
+      updatedPoint
+    );
+
+    if (this.#isCreating) {
+      this.#unlockNewEventButton();
+    }
+
+    this.#switchToRoutePoint();
+  };
+
+  #onFavoriteClick = (updatedPoint) => {
+    this.#onDataChange(
+      UserAction.UPDATE_POINT,
+      updatedPoint
+    );
   };
 }
