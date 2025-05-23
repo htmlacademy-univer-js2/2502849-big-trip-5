@@ -1,19 +1,62 @@
-import {getRandomPoint} from '../mock/point.js';
-import {mockDestinations} from '../mock/destinations.js';
-import {mockOffers} from '../mock/offers.js';
-import {POINT_COUNT, FilterType} from '../const.js';
+/* eslint-disable camelcase */
+import {FilterType} from '../const.js';
 import {isFuturedPoint, isPresentedPoint, isPastedPoint} from '../utils.js';
 
 export default class PointsModel {
-  #points = Array.from({length: POINT_COUNT}, getRandomPoint);
-  #destinations = mockDestinations;
-  #offers = mockOffers;
+  #points = [];
+  #destinations = [];
+  #offers = [];
   #filterModel = null;
   #observers = [];
+  #apiService = null;
+  #isLoading = true;
+  #isFailed = false;
 
-  constructor({filterModel}) {
+  constructor({filterModel, apiService}) {
     this.#filterModel = filterModel;
+    this.#apiService = apiService;
   }
+
+  async init() {
+    try {
+      this.#isLoading = true;
+      this.#isFailed = false;
+      this.#notifyObservers();
+
+      const [points, destinations, offers] = await Promise.all([
+        this.#apiService.getPoints(),
+        this.#apiService.getDestinations(),
+        this.#apiService.getOffers(),
+      ]);
+
+      this.#points = points.map(this.#adaptToClient);
+      this.#destinations = destinations;
+      this.#offers = offers;
+      this.#isFailed = false;
+    } catch (err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+      this.#isFailed = true;
+    } finally {
+      this.#isLoading = false;
+      this.#notifyObservers();
+    }
+  }
+
+  get isLoading() {
+    return this.#isLoading;
+  }
+
+  get isFailed() {
+    return this.#isFailed;
+  }
+
+  #adaptToClient = (point) => ({
+    ...point,
+    date_from: point.date_from,
+    date_to: point.date_to,
+  });
 
   get points() {
     const filterType = this.#filterModel?.filter || FilterType.EVERYTHING;
@@ -74,33 +117,55 @@ export default class PointsModel {
     this.#observers.forEach((observer) => observer());
   }
 
-  updatePoint(updatedPoint) {
-    const index = this.#points.findIndex((point) => point.id === updatedPoint.id);
-    if (index === -1) {
-      return;
-    }
+  async updatePoint(updatedPoint) {
+    try {
+      const response = await this.#apiService.updatePoint(updatedPoint);
+      const adaptedPoint = this.#adaptToClient(response);
 
-    this.#points = [
-      ...this.#points.slice(0, index),
-      {...this.#points[index], ...updatedPoint},
-      ...this.#points.slice(index + 1)
-    ];
+      const index = this.#points.findIndex((point) => point.id === adaptedPoint.id);
+      if (index === -1) {
+        return false;
+      }
 
-    this.#notifyObservers();
-  }
+      this.#points = [
+        ...this.#points.slice(0, index),
+        adaptedPoint,
+        ...this.#points.slice(index + 1)
+      ];
 
-  deletePoint(pointId) {
-    const initialLength = this.#points.length;
-    this.#points = this.#points.filter((point) => point.id !== pointId);
-
-    if (this.#points.length !== initialLength) {
       this.#notifyObservers();
+      return true;
+    } catch (err) {
+      return false;
     }
   }
 
-  addPoint(newPoint) {
-    this.#points = [newPoint, ...this.#points];
-    this.#notifyObservers();
+  async addPoint(newPoint) {
+    try {
+      const response = await this.#apiService.addPoint(newPoint);
+      const adaptedPoint = this.#adaptToClient(response);
+
+      this.#points = [adaptedPoint, ...this.#points];
+      this.#notifyObservers();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  async deletePoint(pointId) {
+    try {
+      await this.#apiService.deletePoint({id: pointId});
+
+      const initialLength = this.#points.length;
+      this.#points = this.#points.filter((point) => point.id !== pointId);
+
+      if (this.#points.length !== initialLength) {
+        this.#notifyObservers();
+      }
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 }
-
