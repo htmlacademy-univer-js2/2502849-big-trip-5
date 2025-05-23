@@ -1,5 +1,3 @@
-export const POINT_COUNT = 4;
-
 export const FilterType = {
   EVERYTHING: 'EVERYTHING',
   FUTURE: 'FUTURE',
@@ -43,4 +41,15 @@ export const FLATPICKR_COMMON_OPTIONS = {
   time_24hr: true,
   locale: {firstDayOfWeek: 1},
   allowInput: true
+};
+
+export const BASE_URL = 'https://24.objects.htmlacademy.pro/big-trip';
+
+export const AUTHORIZATION = 'Basic er883jdzbdw';
+
+export const HttpMethod = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
