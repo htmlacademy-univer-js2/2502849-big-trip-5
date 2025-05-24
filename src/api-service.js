@@ -40,6 +40,7 @@ export default class ApiService {
     return this.#load({
       url: `points/${point.id}`,
       method: HttpMethod.DELETE,
+      headers: new Headers({'Content-Type': 'application/json'}),
     });
   }
 
@@ -68,10 +69,15 @@ export default class ApiService {
       ...point,
       'date_from': point.date_from,
       'date_to': point.date_to,
-      'base_price': point.base_price,
-      'is_favorite': point.is_favorite,
+      'base_price': Math.max(1, Number(point.base_price)),
+      'is_favorite': Boolean(point.is_favorite),
       'destination': point.destination?.id || point.destination,
+      'offers': point.offers || []
     };
+
+    if (point.id.includes('temp-')) {
+      delete adaptedPoint.id;
+    }
 
     delete adaptedPoint.destinationName;
     delete adaptedPoint.offersList;
