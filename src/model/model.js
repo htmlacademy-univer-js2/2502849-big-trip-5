@@ -117,55 +117,37 @@ export default class PointsModel {
     this.#observers.forEach((observer) => observer());
   }
 
-  async updatePoint(updatedPoint) {
-    try {
-      const response = await this.#apiService.updatePoint(updatedPoint);
-      const adaptedPoint = this.#adaptToClient(response);
-
-      const index = this.#points.findIndex((point) => point.id === adaptedPoint.id);
-      if (index === -1) {
-        return false;
-      }
-
-      this.#points = [
-        ...this.#points.slice(0, index),
-        adaptedPoint,
-        ...this.#points.slice(index + 1)
-      ];
-
-      this.#notifyObservers();
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-
   async addPoint(newPoint) {
-    try {
-      const response = await this.#apiService.addPoint(newPoint);
-      const adaptedPoint = this.#adaptToClient(response);
-
-      this.#points = [adaptedPoint, ...this.#points];
-      this.#notifyObservers();
-      return true;
-    } catch (err) {
-      return false;
-    }
+    const response = await this.#apiService.addPoint(newPoint);
+    const adaptedPoint = this.#adaptToClient(response);
+    this.#points = [adaptedPoint, ...this.#points];
+    this.#notifyObservers();
+    return true;
   }
 
-  async deletePoint(pointId) {
-    try {
-      await this.#apiService.deletePoint({id: pointId});
+  async deletePoint(point) {
+    await this.#apiService.deletePoint(point);
+    this.#points = this.#points.filter((p) => p.id !== point.id);
+    this.#notifyObservers();
+    return true;
+  }
 
-      const initialLength = this.#points.length;
-      this.#points = this.#points.filter((point) => point.id !== pointId);
+  async updatePoint(updatedPoint) {
+    const response = await this.#apiService.updatePoint(updatedPoint);
+    const adaptedPoint = this.#adaptToClient(response);
 
-      if (this.#points.length !== initialLength) {
-        this.#notifyObservers();
-      }
-      return true;
-    } catch (err) {
+    const index = this.#points.findIndex((point) => point.id === adaptedPoint.id);
+    if (index === -1) {
       return false;
     }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      adaptedPoint,
+      ...this.#points.slice(index + 1)
+    ];
+
+    this.#notifyObservers();
+    return true;
   }
 }

@@ -374,4 +374,33 @@ export default class FormEditingView extends AbstractStatefulView {
       });
     }
   };
+
+  setSavingState() {
+    this.element.querySelector('.event__save-btn').textContent = 'Saving...';
+    this.element.querySelector('.event__save-btn').disabled = true;
+    this.element.querySelector('.event__rollup-btn').disabled = true;
+    this.element.querySelector('.event__reset-btn').disabled = true;
+  }
+
+  setDeletingState() {
+    this.element.querySelector('.event__reset-btn').textContent = 'Deleting...';
+    this.element.querySelector('.event__reset-btn').disabled = true;
+    this.element.querySelector('.event__save-btn').disabled = true;
+    this.element.querySelector('.event__rollup-btn').disabled = true;
+  }
+
+  resetButtonStates() {
+    this.element.querySelector('.event__save-btn').textContent = 'Save';
+    this.element.querySelector('.event__reset-btn').textContent = this._state.isCreating ? 'Cancel' : 'Delete';
+    this.element.querySelector('.event__save-btn').disabled = false;
+    this.element.querySelector('.event__reset-btn').disabled = false;
+    this.element.querySelector('.event__rollup-btn').disabled = false;
+  }
+
+  shake() {
+    this.element.style.animation = 'shake 0.6s';
+    setTimeout(() => {
+      this.element.style.animation = '';
+    }, 600);
+  }
 }

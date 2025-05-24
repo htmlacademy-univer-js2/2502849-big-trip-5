@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable camelcase */
 import {render, remove} from '../framework/render.js';
 import {sortPointsByDay, sortPointsByTime, sortPointsByPrice} from '../utils.js';
@@ -32,28 +33,32 @@ export default class Presenter {
   }
 
   #renderTrip() {
-    this.#clearTrip();
+  this.#clearTrip();
 
-    if (this.#pointsModel.isLoading) {
-      this.#renderMessage('Loading...');
-      return;
-    }
-
-    if (this.#pointsModel.isFailed) {
-      this.#renderMessage('Failed to load latest route information');
-      return;
-    }
-
-    const points = this.#pointsModel.points;
-    const filterType = this.#filterModel.filter;
-
-    if (points.length === 0) {
-      this.#renderEmptyList(filterType);
-      return;
-    }
-
-    this.#renderPointsList();
+  if (this.#pointsModel.isLoading) {
+    this.#renderMessage('Loading...');
+    document.querySelector('.trip-main__event-add-btn').disabled = true;
+    return;
   }
+
+  if (this.#pointsModel.isFailed) {
+    this.#renderMessage('Failed to load latest route information');
+    document.querySelector('.trip-main__event-add-btn').disabled = false;
+    return;
+  }
+
+  const points = this.#pointsModel.points;
+  const filterType = this.#filterModel.filter;
+
+  if (points.length === 0) {
+    this.#renderEmptyList(filterType);
+    document.querySelector('.trip-main__event-add-btn').disabled = false;
+    return;
+  }
+
+  this.#renderPointsList();
+  document.querySelector('.trip-main__event-add-btn').disabled = false;
+}
 
   #clearTrip() {
     this.#clearPoints();
@@ -153,16 +158,16 @@ export default class Presenter {
     }
   }
 
-  #onPointChange = (actionType, update) => {
+  #onPointChange = async (actionType, update) => {
     switch (actionType) {
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(update);
+        await this.#pointsModel.addPoint(update);
         break;
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(update);
+        await this.#pointsModel.updatePoint(update);
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(update.id);
+        await this.#pointsModel.deletePoint(update);
         break;
     }
   };
@@ -175,15 +180,12 @@ export default class Presenter {
     this.#currentSortType = SortType.DAY;
     this.#sortComponent?.update(SortType.DAY);
 
-    this.#pointPresenters.forEach((presenter) => presenter.resetView());
-    this.#pointPresenters.clear();
-
     const newPoint = {
-      id: crypto.randomUUID(),
+      id: `temp-${crypto.randomUUID()}`,
       base_price: 0,
       date_from: '',
       date_to: '',
-      destination: null,
+      destination: this.#pointsModel.destinations[0]?.id || null,
       is_favorite: false,
       offers: [],
       type: 'flight'
@@ -201,7 +203,7 @@ export default class Presenter {
     this.#currentEditingPointId = newPoint.id;
   };
 
-  #onModeChange = (pointId) => {
+    #onModeChange = (pointId) => {
     if (this.#currentEditingPointId === pointId) {
       return;
     }

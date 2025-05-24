@@ -144,30 +144,45 @@ export default class PointPresenter {
     }
   };
 
-  #onDeleteClick = (point) => {
-    this.#onDataChange(
-      UserAction.DELETE_POINT,
-      {id: point.id}
-    );
+  #onFormSubmit = async (updatedPoint) => {
+    try {
+      this.#editingForm.setSavingState();
+
+      if (this.#isCreating) {
+        await this.#onDataChange(UserAction.ADD_POINT, updatedPoint);
+        this.#unlockNewEventButton();
+        this.#switchToRoutePoint();
+      } else {
+        await this.#onDataChange(UserAction.UPDATE_POINT, updatedPoint);
+        this.#switchToRoutePoint();
+      }
+    } catch {
+      this.#editingForm.shake();
+    } finally {
+      this.#editingForm.resetButtonStates();
+    }
+  };
+
+  #onDeleteClick = async (point) => {
+    try {
+      this.#editingForm.setDeletingState();
+      await this.#onDataChange(
+        UserAction.DELETE_POINT,
+        {id: point.id}
+      );
+      this.destroy();
+      this.#onModeChange(null);
+    } catch {
+      this.#editingForm.shake();
+    } finally {
+      this.#editingForm.resetButtonStates();
+    }
   };
 
   #onCancel = () => {
     this.destroy();
     this.#onModeChange(null);
     this.#unlockNewEventButton();
-  };
-
-  #onFormSubmit = (updatedPoint) => {
-    this.#onDataChange(
-      this.#isCreating ? UserAction.ADD_POINT : UserAction.UPDATE_POINT,
-      updatedPoint
-    );
-
-    if (this.#isCreating) {
-      this.#unlockNewEventButton();
-    }
-
-    this.#switchToRoutePoint();
   };
 
   #onFavoriteClick = (updatedPoint) => {
